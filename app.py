@@ -1,228 +1,312 @@
-from flask import Flask, jsonify
-from datetime import datetime
-import socket
+from flask import Flask, jsonify, render_template_string
 import os
+import platform
+import socket
+from datetime import datetime
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>My Rahti App - Ashish Nuniya</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                min-height: 100vh;
-                padding: 20px;
-            }
-            .container {
-                max-width: 1000px;
-                margin: 0 auto;
-                background: white;
-                padding: 40px;
-                border-radius: 15px;
-                box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            }
-            .header {
-                text-align: center;
-                margin-bottom: 40px;
-            }
-            h1 {
-                color: #333;
-                font-size: 2.5em;
-                margin-bottom: 10px;
-                background: linear-gradient(135deg, #667eea, #764ba2);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-            }
-            .student-info {
-                background: #f8f9fa;
-                padding: 20px;
-                border-radius: 10px;
-                margin-bottom: 30px;
-                border-left: 5px solid #667eea;
-            }
-            .api-section {
-                background: #f8f9fa;
-                padding: 25px;
-                margin: 25px 0;
-                border-radius: 10px;
-                border: 1px solid #e9ecef;
-            }
-            button {
-                padding: 12px 24px;
-                margin: 10px 5px;
-                background: linear-gradient(135deg, #667eea, #764ba2);
-                color: white;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                font-size: 16px;
-                font-weight: 600;
-                transition: transform 0.2s, box-shadow 0.2s;
-            }
-            button:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-            }
-            .result {
-                margin-top: 20px;
-                padding: 15px;
-                border-radius: 8px;
-                background: white;
-                border: 1px solid #dee2e6;
-            }
-            .endpoints {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                gap: 15px;
-                margin-top: 15px;
-            }
-            .endpoint-card {
-                background: white;
-                padding: 15px;
-                border-radius: 8px;
-                border: 1px solid #e9ecef;
-                text-align: center;
-            }
-            .endpoint-card a {
-                color: #667eea;
-                text-decoration: none;
-                font-weight: 600;
-            }
-            .endpoint-card a:hover {
-                text-decoration: underline;
-            }
-            .badge {
-                display: inline-block;
-                padding: 5px 10px;
-                background: #28a745;
-                color: white;
-                border-radius: 20px;
-                font-size: 0.8em;
-                margin-left: 10px;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="header">
-                <h1>🚀 CSC Rahti Application</h1>
-                <p style="color: #666; font-size: 1.2em;">Cloud Computing - Week 4 Assignment</p>
-            </div>
-
-            <div class="student-info">
-                <h2>👨‍🎓 Student Information</h2>
+    return render_template_string('''
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSC Rahti Demo Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .info-item {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .info-item strong {
+            color: #2c3e50;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .feature {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+            display: flex;
+            align-items: center;
+        }
+        
+        .feature:before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+        
+        .api-section {
+            text-align: center;
+            background: #e8f4fd;
+            border-left-color: #2196F3;
+        }
+        
+        .api-button {
+            display: inline-block;
+            background: #2196F3;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            margin-top: 10px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .api-button:hover {
+            background: #1976D2;
+        }
+        
+        .links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .link {
+            color: #667eea;
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid #667eea;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .link:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .student-highlight {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+            text-align: center;
+        }
+        
+        .student-highlight h2 {
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CSC Rahti Demo Application</h1>
+            <p>Welcome! This is a demo application for CSC's Rahti container platform.</p>
+        </div>
+        
+        <div class="content">
+            <div class="student-highlight section">
+                <h2>🎓 Student Assignment</h2>
                 <p><strong>Name:</strong> Ashish Nuniya</p>
-                <p><strong>Course:</strong> CSC Cloud Computing</p>
-                <p><strong>Assignment:</strong> Week 4 - Container Deployment</p>
-                <p><strong>Platform:</strong> CSC Rahti OpenShift</p>
+                <p><strong>Course:</strong> CSC Cloud Computing - Week 4</p>
+                <p><strong>Status:</strong> ✅ Assignment Completed</p>
             </div>
-
-            <div class="api-section">
-                <h2>🔧 API Testing</h2>
-                <p>Test the REST API endpoints:</p>
-                <div>
-                    <button onclick="testEndpoint('/api/name')">Test Name API</button>
-                    <button onclick="testEndpoint('/api/info')">Test Info API</button>
-                    <button onclick="testEndpoint('/health')">Test Health Check</button>
-                </div>
-                <div id="result" class="result">
-                    <p style="color: #666; text-align: center;">Click a button to test API endpoints...</p>
-                </div>
-            </div>
-
-            <div class="api-section">
-                <h2>🌐 Available Endpoints</h2>
-                <div class="endpoints">
-                    <div class="endpoint-card">
-                        <h3>Name API</h3>
-                        <p><a href="/api/name" target="_blank">/api/name</a></p>
-                        <p style="color: #666; font-size: 0.9em;">Returns student name as JSON</p>
+            
+            <div class="section">
+                <h2>System Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Server:</strong> {{ server_hostname }}
                     </div>
-                    <div class="endpoint-card">
-                        <h3>Student Info</h3>
-                        <p><a href="/api/info" target="_blank">/api/info</a></p>
-                        <p style="color: #666; font-size: 0.9em;">Returns detailed student information</p>
+                    <div class="info-item">
+                        <strong>Platform:</strong> {{ platform_info }}
                     </div>
-                    <div class="endpoint-card">
-                        <h3>Health Check</h3>
-                        <p><a href="/health" target="_blank">/health</a></p>
-                        <p style="color: #666; font-size: 0.9em;">Returns application health status</p>
+                    <div class="info-item">
+                        <strong>Python Version:</strong> {{ python_version }}
+                    </div>
+                    <div class="info-item">
+                        <strong>Timestamp:</strong> {{ current_time }}
+                    </div>
+                    <div class="info-item">
+                        <strong>Port:</strong> {{ port }}
                     </div>
                 </div>
             </div>
-
-            <div class="api-section">
-                <h2>✅ Assignment Requirements</h2>
-                <ul style="list-style: none; padding: 0;">
-                    <li>✅ Deployed on CSC Rahti container platform</li>
-                    <li>✅ REST API returning student name via /api/name</li>
-                    <li>✅ Frontend with interactive API testing</li>
-                    <li>✅ Personalized application with student information</li>
-                    <li>✅ Git repository with source code</li>
-                </ul>
+            
+            <div class="section">
+                <h2>Rahti Features</h2>
+                <div class="features">
+                    <div class="feature">OpenShift/OKD-based platform</div>
+                    <div class="feature">Automatic scaling</div>
+                    <div class="feature">Rolling updates</div>
+                    <div class="feature">Health checks</div>
+                    <div class="feature">Persistent storage</div>
+                    <div class="feature">Load balancing</div>
+                    <div class="feature">HTTPS support</div>
+                    <div class="feature">CI/CD integration</div>
+                </div>
+            </div>
+            
+            <div class="section api-section">
+                <h2>API Demo</h2>
+                <p>Test the application's API endpoints:</p>
+                <div style="margin: 20px 0;">
+                    <button class="api-button" onclick="fetchAPI('/api/name')">Get Student Name</button>
+                    <button class="api-button" onclick="fetchAPI('/api/info')">Get System Info</button>
+                    <button class="api-button" onclick="fetchAPI('/health')">Health Check</button>
+                </div>
+                <div id="api-result" style="margin-top: 20px; padding: 15px; background: white; border-radius: 6px; min-height: 50px; text-align: left;">
+                    <p style="color: #666; text-align: center;">API results will appear here...</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>Useful Links</h2>
+                <div class="links">
+                    <a href="/api/name" class="link" target="_blank">Name API</a>
+                    <a href="/api/info" class="link" target="_blank">Info API</a>
+                    <a href="/health" class="link" target="_blank">Health API</a>
+                    <a href="https://docs.csc.fi/cloud/rahti/" class="link" target="_blank">Rahti Documentation</a>
+                </div>
             </div>
         </div>
+    </div>
 
-        <script>
-            async function testEndpoint(endpoint) {
-                const resultDiv = document.getElementById('result');
-                resultDiv.innerHTML = '<p style="color: #666;">Testing ' + endpoint + '...</p>';
+    <script>
+        async function fetchAPI(endpoint) {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = '<p style="color: #666;">Fetching data from ' + endpoint + '...</p>';
+            
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
                 
-                try {
-                    const response = await fetch(endpoint);
-                    const data = await response.json();
-                    
-                    resultDiv.innerHTML = `
-                        <div style="color: #28a745;">
-                            <h3>✅ Success - ${endpoint}</h3>
-                            <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto;">${JSON.stringify(data, null, 2)}</pre>
-                        </div>
-                    `;
-                } catch (error) {
-                    resultDiv.innerHTML = `
-                        <div style="color: #dc3545;">
-                            <h3>❌ Error - ${endpoint}</h3>
-                            <p>${error.message}</p>
-                        </div>
-                    `;
-                }
+                resultDiv.innerHTML = `
+                    <div style="color: #28a745;">
+                        <strong>✅ Success - ${endpoint}</strong>
+                        <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; overflow-x: auto;">${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="color: #dc3545;">
+                        <strong>❌ Error - ${endpoint}</strong>
+                        <p>${error.message}</p>
+                    </div>
+                `;
             }
-        </script>
-    </body>
-    </html>
-    """
+        }
+    </script>
+</body>
+</html>
+    ''', 
+    server_hostname=socket.gethostname(),
+    platform_info=f"{platform.system()}: {platform.release()}-{platform.machine()}",
+    python_version=platform.python_version(),
+    current_time=datetime.now().isoformat(),
+    port=os.environ.get('PORT', 8080)
+    )
 
 @app.route('/api/name')
 def get_name():
     return jsonify({
         "name": "Ashish Nuniya",
+        "course": "CSC Cloud Computing",
+        "assignment": "Week 4",
         "timestamp": datetime.now().isoformat(),
-        "endpoint": "/api/name"
+        "server": socket.gethostname()
     })
 
 @app.route('/api/info')
 def get_info():
     return jsonify({
-        "student": {
-            "name": "Ashish Nuniya",
-            "course": "CSC Cloud Computing",
-            "assignment": "Week 4 - Container Deployment"
+        "system_info": {
+            "platform": platform.platform(),
+            "python_version": platform.python_version(),
+            "hostname": socket.gethostname(),
+            "processor": platform.processor()
         },
         "application": {
-            "platform": "CSC Rahti OpenShift",
-            "status": "Running",
-            "hostname": socket.gethostname()
+            "name": "CSC Rahti Demo",
+            "student": "Ashish Nuniya",
+            "status": "Running"
         },
         "timestamp": datetime.now().isoformat()
     })
@@ -234,7 +318,7 @@ def health():
         "service": "CSC Rahti Demo Application",
         "student": "Ashish Nuniya",
         "timestamp": datetime.now().isoformat(),
-        "uptime": "Running smoothly"
+        "uptime": "Running smoothly on Rahti"
     })
 
 if __name__ == '__main__':
