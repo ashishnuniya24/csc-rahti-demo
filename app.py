@@ -3,7 +3,6 @@ from flask import Flask, jsonify
 import os
 import logging
 import socket
-import platform
 from datetime import datetime
 
 # Configure logging
