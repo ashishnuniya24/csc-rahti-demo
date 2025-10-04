@@ -107,8 +107,6 @@ def home():
             padding: 12px;
             border-radius: 6px;
             border: 1px solid #e9ecef;
-            display: flex;
-            align-items: center;
         }
         
         .feature:before {
@@ -162,16 +160,6 @@ def home():
             background: #667eea;
             color: white;
         }
-        
-        .student-highlight {
-            background: #fff3cd;
-            border-left-color: #ffc107;
-            text-align: center;
-        }
-        
-        .student-highlight h2 {
-            color: #856404;
-        }
     </style>
 </head>
 <body>
@@ -182,13 +170,6 @@ def home():
         </div>
         
         <div class="content">
-            <div class="student-highlight section">
-                <h2>🎓 Student Assignment</h2>
-                <p><strong>Name:</strong> Ashish Nuniya</p>
-                <p><strong>Course:</strong> CSC Cloud Computing - Week 4</p>
-                <p><strong>Status:</strong> ✅ Assignment Completed</p>
-            </div>
-            
             <div class="section">
                 <h2>System Information</h2>
                 <div class="info-grid">
@@ -226,11 +207,9 @@ def home():
             
             <div class="section api-section">
                 <h2>API Demo</h2>
-                <p>Test the application's API endpoints:</p>
-                <div style="margin: 20px 0;">
-                    <button class="api-button" onclick="fetchAPI('/api/name')">Get Student Name</button>
-                    <button class="api-button" onclick="fetchAPI('/api/info')">Get System Info</button>
-                    <button class="api-button" onclick="fetchAPI('/health')">Health Check</button>
+                <p>Test the application's API endpoint:</p>
+                <div>
+                    <button class="api-button" onclick="fetchAPI('/api/name')">Fetch API Data</button>
                 </div>
                 <div id="api-result" style="margin-top: 20px; padding: 15px; background: white; border-radius: 6px; min-height: 50px; text-align: left;">
                     <p style="color: #666; text-align: center;">API results will appear here...</p>
@@ -240,10 +219,9 @@ def home():
             <div class="section">
                 <h2>Useful Links</h2>
                 <div class="links">
-                    <a href="/api/name" class="link" target="_blank">Name API</a>
-                    <a href="/api/info" class="link" target="_blank">Info API</a>
-                    <a href="/health" class="link" target="_blank">Health API</a>
-                    <a href="https://docs.csc.fi/cloud/rahti/" class="link" target="_blank">Rahti Documentation</a>
+                    <a href="/health" class="link">Health Check</a>
+                    <a href="/api/info" class="link">System Information (JSON)</a>
+                    <a href="/api/name" class="link">API Data Fetch</a>
                 </div>
             </div>
         </div>
@@ -252,7 +230,7 @@ def home():
     <script>
         async function fetchAPI(endpoint) {
             const resultDiv = document.getElementById('api-result');
-            resultDiv.innerHTML = '<p style="color: #666;">Fetching data from ' + endpoint + '...</p>';
+            resultDiv.innerHTML = '<p style="color: #666;">Testing ' + endpoint + '...</p>';
             
             try {
                 const response = await fetch(endpoint);
@@ -260,14 +238,14 @@ def home():
                 
                 resultDiv.innerHTML = `
                     <div style="color: #28a745;">
-                        <strong>✅ Success - ${endpoint}</strong>
-                        <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin-top: 10px; overflow-x: auto;">${JSON.stringify(data, null, 2)}</pre>
+                        <h3>Success - ${endpoint}</h3>
+                        <pre style="background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto;">${JSON.stringify(data, null, 2)}</pre>
                     </div>
                 `;
             } catch (error) {
                 resultDiv.innerHTML = `
                     <div style="color: #dc3545;">
-                        <strong>❌ Error - ${endpoint}</strong>
+                        <h3>Error - ${endpoint}</h3>
                         <p>${error.message}</p>
                     </div>
                 `;
@@ -278,9 +256,9 @@ def home():
 </html>
     ''', 
     server_hostname=socket.gethostname(),
-    platform_info=f"{platform.system()}: {platform.release()}-{platform.machine()}",
+    platform_info=platform.platform(),
     python_version=platform.python_version(),
-    current_time=datetime.now().isoformat(),
+    current_time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
     port=os.environ.get('PORT', 8080)
     )
 
@@ -300,8 +278,7 @@ def get_info():
         "system_info": {
             "platform": platform.platform(),
             "python_version": platform.python_version(),
-            "hostname": socket.gethostname(),
-            "processor": platform.processor()
+            "hostname": socket.gethostname()
         },
         "application": {
             "name": "CSC Rahti Demo",
@@ -317,8 +294,7 @@ def health():
         "status": "healthy",
         "service": "CSC Rahti Demo Application",
         "student": "Ashish Nuniya",
-        "timestamp": datetime.now().isoformat(),
-        "uptime": "Running smoothly on Rahti"
+        "timestamp": datetime.now().isoformat()
     })
 
 if __name__ == '__main__':
